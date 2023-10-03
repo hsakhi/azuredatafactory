@@ -1,0 +1,9 @@
+{
+	"name": "HamidDataFactoryDemo",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "e4a339d9-2c4f-4616-bc4c-68aa9f3c9cb7",
+		"tenantId": "30e353cb-52d6-481f-9d9c-2bfea5ed1fbf"
+	}
+}

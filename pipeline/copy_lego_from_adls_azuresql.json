@@ -1,0 +1,34 @@
+{
+	"name": "copy_lego_from_adls_azuresql",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy ADLS to Azure",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "copyadlstoazuredataflow",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2023-10-03T03:40:34Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

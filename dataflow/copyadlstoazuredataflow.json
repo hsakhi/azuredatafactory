@@ -1,0 +1,48 @@
+{
+	"name": "copyadlstoazuredataflow",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DestinationDataset_nlb",
+						"type": "DatasetReference"
+					},
+					"name": "ADLSThemes"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "AzureSqlTable1",
+						"type": "DatasetReference"
+					},
+					"name": "LoadDB"
+				}
+			],
+			"transformations": [
+				{
+					"name": "AddDate"
+				}
+			],
+			"scriptLines": [
+				"source(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> ADLSThemes",
+				"ADLSThemes derive({Load Date} = currentDate()) ~> AddDate",
+				"AddDate sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     truncate:true,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> LoadDB"
+			]
+		}
+	}
+}
