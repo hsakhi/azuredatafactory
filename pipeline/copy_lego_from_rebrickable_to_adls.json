@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Copy Themes from HTTP to ADLS",
+				"name": "Copy Lego from HTTP to ADLS",
 				"type": "Copy",
 				"dependsOn": [],
 				"policy": {
