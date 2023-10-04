@@ -15,12 +15,12 @@
 				},
 				"userProperties": [
 					{
-						"name": "Source",
-						"value": "themes.csv.gz"
+						"name": "Destination",
+						"value": "lego//@{pipeline().parameters.FileName}.csv"
 					},
 					{
-						"name": "Destination",
-						"value": "lego//themes.csv"
+						"name": "Source",
+						"value": "@{pipeline().parameters.FileName}.csv"
 					}
 				],
 				"typeProperties": {
@@ -59,7 +59,7 @@
 								"referenceName": "AzureDataLakeStorage2",
 								"type": "LinkedServiceReference"
 							},
-							"path": "lego/errors/themes"
+							"path": "lego/errors/@{pipeline().parameters.FileName}"
 						}
 					},
 					"translator": {
