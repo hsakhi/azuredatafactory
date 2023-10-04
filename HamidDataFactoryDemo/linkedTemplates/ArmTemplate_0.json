@@ -137,6 +137,49 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/DataDestination')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Connection to your destination data store.",
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Data_Destination_Container": {
+						"type": "String"
+					},
+					"Data_Destination_Directory": {
+						"type": "String"
+					}
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": {
+							"value": "@{dataset().Data_Destination_Directory}",
+							"type": "Expression"
+						},
+						"fileSystem": {
+							"value": "@{dataset().Data_Destination_Container}",
+							"type": "Expression"
+						}
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/DestinationDataset_nlb')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -145,12 +188,21 @@
 					"referenceName": "AzureDataLakeStorage2",
 					"type": "LinkedServiceReference"
 				},
+				"parameters": {
+					"FileName": {
+						"type": "String",
+						"defaultValue": "FileName"
+					}
+				},
 				"annotations": [],
 				"type": "DelimitedText",
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"fileName": "themes.csv",
+						"fileName": {
+							"value": "@d{ataset().FileName}.csv",
+							"type": "Expression"
+						},
 						"fileSystem": "lego"
 					},
 					"columnDelimiter": ",",
@@ -165,7 +217,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/SourceDataset_nlb')]",
+			"name": "[concat(parameters('factoryName'), '/HTTP_Lego')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -173,12 +225,21 @@
 					"referenceName": "ReBrickable",
 					"type": "LinkedServiceReference"
 				},
+				"parameters": {
+					"FileName": {
+						"type": "string",
+						"defaultValue": "FileName"
+					}
+				},
 				"annotations": [],
 				"type": "DelimitedText",
 				"typeProperties": {
 					"location": {
 						"type": "HttpServerLocation",
-						"relativeUrl": "themes.csv.gz"
+						"relativeUrl": {
+							"value": "@dataset().FileName",
+							"type": "Expression"
+						}
 					},
 					"columnDelimiter": ",",
 					"rowDelimiter": "\n",
@@ -204,13 +265,13 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/copy_lego_from_rebrickable_to_adls')]",
+			"name": "[concat(parameters('factoryName'), '/Lego_HTTP_to_ADSL')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "Copy Themes from HTTP to ADLS",
+						"name": "Copy Lego from HTTP to ADLS",
 						"type": "Copy",
 						"dependsOn": [],
 						"policy": {
@@ -222,12 +283,12 @@
 						},
 						"userProperties": [
 							{
-								"name": "Source",
-								"value": "themes.csv.gz"
+								"name": "Destination",
+								"value": "lego//@{pipeline().parameters.FileName}.csv"
 							},
 							{
-								"name": "Destination",
-								"value": "lego//themes.csv"
+								"name": "Source",
+								"value": "@{pipeline().parameters.FileName}.csv"
 							}
 						],
 						"typeProperties": {
@@ -266,7 +327,10 @@
 										"referenceName": "AzureDataLakeStorage2",
 										"type": "LinkedServiceReference"
 									},
-									"path": "lego/errors/themes"
+									"path": {
+										"value": "lego/errors/@{pipeline().parameters.FileName}",
+										"type": "Expression"
+									}
 								}
 							},
 							"translator": {
@@ -280,16 +344,26 @@
 						},
 						"inputs": [
 							{
-								"referenceName": "SourceDataset_nlb",
+								"referenceName": "HTTP_Lego",
 								"type": "DatasetReference",
-								"parameters": {}
+								"parameters": {
+									"FileName": {
+										"value": "@pipeline().parameters.FileName",
+										"type": "Expression"
+									}
+								}
 							}
 						],
 						"outputs": [
 							{
 								"referenceName": "DestinationDataset_nlb",
 								"type": "DatasetReference",
-								"parameters": {}
+								"parameters": {
+									"FileName": {
+										"value": "@pipeline().parameters.FileName",
+										"type": "Expression"
+									}
+								}
 							}
 						]
 					}
@@ -297,11 +371,17 @@
 				"policy": {
 					"elapsedTimeMetric": {}
 				},
+				"parameters": {
+					"FileName": {
+						"type": "String",
+						"defaultValue": "FileName"
+					}
+				},
 				"annotations": [],
 				"lastPublishTime": "2023-10-03T03:21:07Z"
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/SourceDataset_nlb')]",
+				"[concat(variables('factoryId'), '/datasets/HTTP_Lego')]",
 				"[concat(variables('factoryId'), '/datasets/DestinationDataset_nlb')]",
 				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage2')]"
 			]
@@ -420,7 +500,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"pipeline": {
-								"referenceName": "copy_lego_from_rebrickable_to_adls",
+								"referenceName": "Lego_HTTP_to_ADSL",
 								"type": "PipelineReference"
 							},
 							"waitOnCompletion": true,
@@ -456,7 +536,7 @@
 				"lastPublishTime": "2023-10-03T16:33:38Z"
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/copy_lego_from_rebrickable_to_adls')]",
+				"[concat(variables('factoryId'), '/pipelines/Lego_HTTP_to_ADSL')]",
 				"[concat(variables('factoryId'), '/pipelines/copy_lego_from_adls_azuresql')]"
 			]
 		},
