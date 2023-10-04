@@ -9,7 +9,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
-						"referenceName": "copy_lego_from_rebrickable_to_adls",
+						"referenceName": "Lego_HTTP_to_ADSL",
 						"type": "PipelineReference"
 					},
 					"waitOnCompletion": true

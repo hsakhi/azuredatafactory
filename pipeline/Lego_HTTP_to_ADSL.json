@@ -1,5 +1,5 @@
 {
-	"name": "copy_lego_from_rebrickable_to_adls",
+	"name": "Lego_HTTP_to_ADSL",
 	"properties": {
 		"activities": [
 			{
